@@ -1,0 +1,14 @@
+{
+  "name": "manager",
+  "repo": "notablemind/manager",
+  "description": "A simple data model manager.",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ]
+}
