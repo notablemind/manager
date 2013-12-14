@@ -20,5 +20,8 @@
   "license": "Apache v2",
   "bugs": {
     "url": "https://github.com/notablemind/manager/issues"
+  },
+  "devDependencies": {
+    "expect.js": "~0.2.0"
   }
 }

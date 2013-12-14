@@ -69,7 +69,11 @@ Manager.prototype = {
     this._map[id] = data
     if (!this._on[id]) return
     for (var i=0; i<this._on[id].length; i++) {
-      this._on[id][i](data)
+      if (Array.isArray(this._on[id][i])) {
+        this._on[id][i][0](data[this._on[id][i][1]])
+      } else {
+        this._on[id][i](data)
+      }
     }
   },
   setter: function (id, attr, data, done) {
