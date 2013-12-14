@@ -4,12 +4,16 @@
   "description": "A simple data model manager.",
   "version": "0.0.1",
   "keywords": [],
-  "dependencies": {},
+  "dependencies": {
+    "lodash/lodash": "*"
+  },
   "development": {},
   "license": "MIT",
   "main": "index.js",
   "scripts": [
     "index.js",
-    "base.js"
-  ]
+    "base.js",
+    "utils.js"
+  ],
+  "remotes": []
 }
