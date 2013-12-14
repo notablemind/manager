@@ -8,7 +8,16 @@ components: component.json
 clean:
 	rm -fr build components template.js
 
-test:
+test: lint test-only coverage
+
+lint:
+	@jshint --verbose *.js *.json
+
+test-only:
 	@mocha -R spec
 
-.PHONY: clean test
+coverage:
+	@mocha -r blanket -R html-cov > coverage.html
+	@open coverage.html
+
+.PHONY: clean test coverage lint test-only
