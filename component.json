@@ -11,9 +11,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": [
-    "index.js",
-    "base.js",
-    "utils.js"
+    "index.js"
   ],
   "remotes": []
 }
