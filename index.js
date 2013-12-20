@@ -13,7 +13,7 @@ Manager.prototype = {
   defaultNode: {},
   newNode: function (data) {
     var id = this.genId()
-    this._map[id] = _.extend({}, data, this.defaultNode)
+    this._map[id] = _.extend({}, this.defaultNode, data)
     return id
   },
   on: function (id, attr, handler) {
@@ -68,7 +68,11 @@ Manager.prototype = {
     }.bind(this))
   },
   got: function (id, data) {
-    this._map[id] = data
+    if (this._map[id]) {
+      _.extend(this._map[id], data)
+    } else {
+      this._map[id] = data
+    }
     if (!this._on[id]) return
     for (var i=0; i<this._on[id].length; i++) {
       if (Array.isArray(this._on[id][i])) {
