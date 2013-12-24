@@ -3,19 +3,43 @@ var _ = require('lodash')
 
 module.exports = Manager
 
-function Manager() {
+function Manager(options) {
   this._pending = {}
   this._map = {}
   this._on = {}
+  options = options || {}
+  if (options.genId) this.genId = options.genId
+  if (options.defaultNode) this.defaultNode = options.defaultNode
+  if (options.handleError) this.handleError = options.handleError
 }
 
 Manager.prototype = {
+  // Override these to make an actual backend, not just a cache
   defaultNode: {},
+  genId: function () {
+    throw new Error('genId must be overridden')
+  },
   newNode: function (data) {
     var id = this.genId()
     this._map[id] = _.extend({}, this.defaultNode, data)
     return id
   },
+  setAttr: function (id, attr, data, done) {
+    if (!this._map[id]) this._map[id] = {}
+    this._map[id][attr] = data
+    done(null, this._map[id])
+  },
+  setter: function (id, data, done) {
+    this._map[id] = data
+    done(null, this._map[id])
+  },
+  getter: function (id, done) {
+    done(null, {})
+  },
+  handleError: function (err, id) {
+    console.error('Failed to fetch', id, err, err.message)
+  },
+  // this stuff is good
   on: function (id, attr, handler) {
     if (handler === undefined) {
       handler = attr
@@ -55,9 +79,22 @@ Manager.prototype = {
     return false
   },
   set: function (id, attr, data) {
-    this.setter(id, attr, data, function (err, data) {
-      this.got(id, data)
-    }.bind(this))
+    // both will return the full object
+    var doattr = arguments.length === 3
+    var done = function (err, ndata) {
+      if (err) return this.handleError(err, id)
+      if (doattr) {
+        if (_.isEqual(data, ndata[attr])) return
+      } else if (_.isEqual(data, ndata)) {
+        return
+      }
+      this.got(id, ndata)
+    }.bind(this)
+    if (doattr) {
+      this.setAttr(id, attr, data, done)
+    } else {
+      this.setter(id, attr, done)
+    }
   },
   fetch: function (id) {
     this._pending[id] = true
@@ -68,6 +105,7 @@ Manager.prototype = {
     }.bind(this))
   },
   got: function (id, data) {
+    if (undefined === data) return console.warn('item not found', id)
     if (this._map[id]) {
       _.extend(this._map[id], data)
     } else {
@@ -82,23 +120,6 @@ Manager.prototype = {
       }
     }
   },
-  setter: function (id, attr, data, done) {
-    if (data === undefined) {
-      data = attr
-      attr = null
-      this._map[id] = data
-    } else {
-      if (!this._map[id]) this._map[id] = {}
-      this._map[id][attr] = data
-    }
-    done(null, this._map[id])
-  },
-  getter: function (id, done) {
-    done(null, {})
-  },
-  handleError: function (err, id) {
-    console.error('Failed to fetch', id, err, err.message)
-  }
 }
 
 
