@@ -13,6 +13,25 @@ function Manager(options) {
   if (options.handleError) this.handleError = options.handleError
 }
 
+function getAttr(obj, attr) {
+  if (!Array.isArray(attr)) return obj[attr]
+  return attr.reduce(function (obj, n) {
+    return obj && obj[n]
+  }, obj)
+}
+
+function setAttr(obj, attr, value) {
+  if (!Array.isArray(attr)) {
+    obj[attr] = value
+    return
+  }
+  attr = attr.slice()
+  var last = attr.pop()
+  attr.reduce(function (obj, n) {
+    return obj && obj[n]
+  }, obj)[attr] = value
+}
+
 Manager.prototype = {
   // Override these to make an actual backend, not just a cache
   defaultNode: {},
@@ -25,7 +44,7 @@ Manager.prototype = {
     return id
   },
   setAttr: function (id, attr, data, done) {
-    if (!this._map[id]) this._map[id] = {}
+    if (!this._map[id]) this._map[id] = _.extend({}, this.defaultNode)
     this._map[id][attr] = data
     done(null, this._map[id])
   },
@@ -53,7 +72,9 @@ Manager.prototype = {
     } else {
       this._on[id].push(handler)
     }
-    if (this._map[id]) return handler(attr ? this._map[id][attr] : this._map[id])
+    if (this._map[id]) {
+      return handler(attr ? getAttr(this._map[id], attr) : this._map[id])
+    }
     if (this._pending[id]) return
     this.fetch(id)
   },
@@ -71,7 +92,7 @@ Manager.prototype = {
       return true
     }
     for (var i=0; i<this._on[id].length; i++) {
-      if (this._on[id][i][0] === handler && this._on[id][i][1] === attr) {
+      if (this._on[id][i][0] === handler && _.isEqual(this._on[id][i][1], attr)) {
         this._on[id].splice(i, 1)
         return true
       }
@@ -84,7 +105,7 @@ Manager.prototype = {
     var done = function (err, ndata) {
       if (err) return this.handleError(err, id)
       if (doattr) {
-        if (_.isEqual(data, ndata[attr])) return
+        if (_.isEqual(data, getAttr(ndata, attr))) return
       } else if (_.isEqual(data, ndata)) {
         return
       }
