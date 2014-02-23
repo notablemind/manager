@@ -27,7 +27,7 @@ Manager.prototype = {
   setAttr: function (id, attr, data, done) {
     if (!this._map[id]) this._map[id] = {}
     this._map[id][attr] = data
-    done(null, this._map[id])
+    done && done(null, this._map[id])
   },
   setter: function (id, data, done) {
     this._map[id] = data
@@ -108,6 +108,7 @@ Manager.prototype = {
     if (undefined === data) return console.warn('item not found', id)
     if (this._map[id]) {
       _.extend(this._map[id], data)
+      data = _.extend({}, this._map[id])
     } else {
       this._map[id] = data
     }
