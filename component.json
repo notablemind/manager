@@ -2,7 +2,7 @@
   "name": "manager",
   "repo": "notablemind/manager",
   "description": "A simple data model manager.",
-  "version": "0.0.1",
+  "version": "1.1.0",
   "keywords": [],
   "dependencies": {
     "lodash/lodash": "*"
