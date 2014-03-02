@@ -112,6 +112,9 @@ Manager.prototype = {
     } else {
       this._map[id] = data
     }
+    this.trigger(id, data)
+  },
+  trigger: function (id, data) {
     if (!this._on[id]) return
     for (var i=0; i<this._on[id].length; i++) {
       if (Array.isArray(this._on[id][i])) {
@@ -120,7 +123,7 @@ Manager.prototype = {
         this._on[id][i](data)
       }
     }
-  },
+  }
 }
 
 
